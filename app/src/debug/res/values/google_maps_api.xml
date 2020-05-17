@@ -1,0 +1,24 @@
+<resources>
+    <!--
+    TODO: Before you run your application, you need a Google Maps API key.
+
+    To get one, follow this link, follow the directions and press "Create" at the end:
+
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=51:D4:6A:9B:AD:68:E7:92:90:92:03:DC:03:58:B3:28:77:B6:D2:84%3Bapps.trichain.game
+
+    You can also add your credentials to an existing key, using these values:
+
+    Package name:
+    apps.trichain.game
+
+    SHA-1 certificate fingerprint:
+    51:D4:6A:9B:AD:68:E7:92:90:92:03:DC:03:58:B3:28:77:B6:D2:84
+
+    Alternatively, follow the directions here:
+    https://developers.google.com/maps/documentation/android/start#get-key
+
+    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    string in this file.
+    -->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCLuL6wajMIfD2jCOEwG6pZKa0vs2jrAVk</string>
+</resources>

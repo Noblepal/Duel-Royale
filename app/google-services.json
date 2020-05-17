@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "529962060745",
+    "firebase_url": "https://gameapp-62401.firebaseio.com",
+    "project_id": "gameapp-62401",
+    "storage_bucket": "gameapp-62401.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:529962060745:android:7d50919b07ef82d2b87618",
+        "android_client_info": {
+          "package_name": "apps.trichain.game"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "529962060745-o3rnfva6rq63o5no7d7muov6drbd0ap1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "apps.trichain.game",
+            "certificate_hash": "51d46a9bad68e792909203dc0358b32877b6d284"
+          }
+        },
+        {
+          "client_id": "529962060745-pt7qhn2r3u6s623sni63p1f38prpqvds.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLuL6wajMIfD2jCOEwG6pZKa0vs2jrAVk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "529962060745-pt7qhn2r3u6s623sni63p1f38prpqvds.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

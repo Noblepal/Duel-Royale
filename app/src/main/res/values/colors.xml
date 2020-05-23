@@ -6,4 +6,5 @@
     <color name="colorWhite">#ffffff</color>
     <color name="colorGreyLight">#EBEBEB</color>
     <color name="transparent">#00000000</color>
+    <color name="dominationColor">#992196F3</color>
 </resources>

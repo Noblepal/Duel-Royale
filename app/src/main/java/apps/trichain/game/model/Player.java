@@ -7,6 +7,9 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class Player implements Serializable {
+    @SerializedName("id")
+    private String id;
+
     @SerializedName("player_name")
     @Expose
     private String playerName;
@@ -31,13 +34,25 @@ public class Player implements Serializable {
     @Expose
     private Float playerDomination;
 
-    public Player(String playerName, Integer playerLevel, String playerPhoto, Double playerLat, Double playerLng, Float playerDomination) {
+    public Player() {
+    }
+
+    public Player(String id, String playerName, Integer playerLevel, String playerPhoto, Double playerLat, Double playerLng, Float playerDomination) {
+        this.id = id;
         this.playerName = playerName;
         this.playerLevel = playerLevel;
         this.playerPhoto = playerPhoto;
         this.playerLat = playerLat;
         this.playerLng = playerLng;
         this.playerDomination = playerDomination;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getPlayerName() {

@@ -1,4 +1,4 @@
-package apps.trichain.game;
+package apps.trichain.game.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import apps.trichain.game.R;
 import apps.trichain.game.model.Game;
 
 public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.ViewHolder> {

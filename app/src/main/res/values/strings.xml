@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Game</string>
     <string name="title_activity_maps">Map</string>
+    <string name="authenticating">Retrieving account…</string>
+    <string name="player_profile">This is your profile, challenge more players to get to a higher level</string>
+    <string name="player_wants_to_play">%1$s wants to play with you</string>
+    <string name="challenge_player">Challenge %1$s in %2$s</string>
 </resources>

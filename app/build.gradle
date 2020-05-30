@@ -26,6 +26,10 @@ android {
         targetCompatibility = 1.8
     }
 
+    dataBinding {
+        enabled = true
+    }
+
 }
 
 dependencies {
@@ -45,14 +49,26 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.3.1")
 
     //Location SDK
-    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
 
     //Firebase
-    implementation 'com.google.firebase:firebase-analytics:17.4.1'
+    implementation 'com.google.firebase:firebase-analytics:17.4.2'
+    implementation 'com.google.android.gms:play-services-auth:18.0.0'
+    implementation 'com.google.firebase:firebase-auth:19.3.1'
+    implementation 'com.google.firebase:firebase-database:19.3.0'
+    implementation 'com.google.firebase:firebase-storage:19.1.1'
 
     //Material Components
     implementation 'com.google.android.material:material:1.1.0'
 
     //Glide
     implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation 'androidx.lifecycle:lifecycle-common:2.3.0-alpha03'
+
+    //Image crop
+    implementation 'com.github.yalantis:ucrop:2.2.2'
+
+    //Runtime permissions
+    implementation "com.karumi:dexter:5.0.0"
+
 }

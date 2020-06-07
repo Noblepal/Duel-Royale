@@ -19,13 +19,13 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
-        <activity android:name=".activity.SignInActivity" />
+        <activity android:name=".activity.AddGameActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".activity.AddGameActivity">
+        <activity android:name=".activity.SignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

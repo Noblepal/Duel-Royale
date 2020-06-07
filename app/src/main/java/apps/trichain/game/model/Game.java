@@ -1,5 +1,14 @@
 package apps.trichain.game.model;
 
+import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.BindingAdapter;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 
 public class Game implements Serializable {
@@ -48,5 +57,18 @@ public class Game implements Serializable {
 
     public void setExternal_url(String external_url) {
         this.external_url = external_url;
+    }
+
+    @BindingAdapter("gameLogo")
+    public static void loadImage(ImageView view, String imageUrl) {
+        Glide.with(view.getContext())
+                .load(imageUrl).apply(new RequestOptions().centerCrop())
+                .into(view);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }

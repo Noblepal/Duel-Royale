@@ -7,6 +7,9 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.List;
+
+import apps.trichain.game.model.Game;
 import apps.trichain.game.model.Player;
 
 public class PlayerViewModel extends ViewModel {
@@ -33,5 +36,17 @@ public class PlayerViewModel extends ViewModel {
 
     public LiveData<Player> getRivalPlayer() {
         return rivalPlayerLiveData;
+    }
+
+    /*Games list*/
+    private MutableLiveData<List<Game>> gamesMutali = new MutableLiveData<>();
+    private LiveData<List<Game>> gamesLiveData = Transformations.map(gamesMutali, gameslist -> gameslist);
+
+    public void setGamesLiveData(List<Game> gamesLiveData) {
+        gamesMutali.setValue(gamesLiveData);
+    }
+
+    public LiveData<List<Game>> getGamesLiveData() {
+        return gamesLiveData;
     }
 }

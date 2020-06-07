@@ -56,12 +56,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import apps.trichain.game.R;
 import apps.trichain.game.adapter.GamesAdapter;
 import apps.trichain.game.databinding.ActivityMainBinding;
+import apps.trichain.game.fragment.AddGameDialogFragment;
 import apps.trichain.game.model.Game;
 import apps.trichain.game.model.Player;
 import apps.trichain.game.util.CircleImageView;
@@ -94,11 +94,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private Dialog d;
     private ValueEventListener currentPlayerListener, rivalPlayerListener;
     private DatabaseReference dbReference;
+    private ValueEventListener gameListener;
     private LocationRequest mLocationRequest;
     private long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
     private Marker currentRivalMarker;
     private String selectedGame = "";
+    AddGameDialogFragment addGameDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,17 +140,24 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         util.loadImage(b.imgCurrentPlayer, currentPlayer.getPlayerPhoto(), false);
 
-        b.btnRivalPlayer.setOnClickListener(v -> {
+        addGameDialog = new AddGameDialogFragment();
+
+        b.btnAddGame.setOnClickListener(v -> {
             Player dummyPlayer = new Player("33$#Gg5325greESTHb5sT$%gser", "ArchNemesis", 393,
                     "null", 38.352, -2.415, 1252.14f);
             playerViewModel.setRivalPlayerData(dummyPlayer);
-            showPlayerDialog();
+            showAddGameDialog();
+            //showPlayerDialog();
         });
 
         initData();
 
         initListeners();
 
+    }
+
+    private void showAddGameDialog() {
+        addGameDialog.show(getSupportFragmentManager(), "add_game_dialog");
     }
 
     private void initListeners() {
@@ -251,15 +260,26 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void initData() {
-        Game[] games = {
-                new Game("Call Of Duty", "", R.drawable.placeholder, ""),
-                new Game("Clash Royale", "", R.drawable.clash_royale, ""),
-                new Game("Battle Grounds", "", R.drawable.battle_grounds, ""),
-                new Game("Dragon Nest", "", R.drawable.dragon_nest, "")
-        };
+        gameListener = dbReference.child("games").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                gamesList.clear();
+                for (DataSnapshot gameSnapShot : dataSnapshot.getChildren()) {
+                    Game g = gameSnapShot.getValue(Game.class);
+                    Log.e(TAG, "onDataChange: Adding: " + g);
+                    gamesList.add(g);
+                }
+                adapter.notifyDataSetChanged();
+                playerViewModel.setGamesLiveData(gamesList);
+            }
 
-        gamesList.addAll(Arrays.asList(games));
-        adapter.notifyDataSetChanged();
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(MainActivity.this, "An error has occurred", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onCancelled: " + databaseError.getMessage());
+            }
+        });
+
 
         b.recyclerViewGames.addOnItemTouchListener(new RecyclerItemClickListener(this, b.recyclerViewGames,
                 new RecyclerItemClickListener.OnItemClickListener() {
@@ -268,7 +288,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                         Game g = gamesList.get(position);
                         selectedGame = g.getGameName();
                         swapViews(true);
-                        util.loadImage(b.selectedGameImage, g.getGameResID(), true);
+                        util.loadImage(b.selectedGameImage, g.getImage_url(), true);
                         //Toast.makeText(MainActivity.this, "Selected " + g.getGameName(), Toast.LENGTH_SHORT).show();
                     }
 

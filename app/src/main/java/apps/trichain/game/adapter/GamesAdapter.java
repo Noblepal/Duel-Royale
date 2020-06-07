@@ -2,16 +2,14 @@ package apps.trichain.game.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import apps.trichain.game.R;
+import apps.trichain.game.databinding.ItemGameBinding;
 import apps.trichain.game.model.Game;
 
 public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.ViewHolder> {
@@ -26,13 +24,17 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_game, parent, false));
+        LayoutInflater inflater = LayoutInflater.from(context);
+        ItemGameBinding itemGameBinding = ItemGameBinding.inflate(inflater, parent, false);
+        return new ViewHolder(itemGameBinding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Game g = gamesList.get(position);
-        holder.gameLogo.setImageResource(g.getGameResID());
+        ItemGameBinding binding = holder.getBinding();
+        holder.bind(g);
+        binding.setImageUrl(g.getImage_url());
     }
 
     @Override
@@ -40,13 +42,21 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.ViewHolder> 
         return gamesList.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView gameLogo;
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        private ItemGameBinding binding;
 
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
+        ViewHolder(ItemGameBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
 
-            gameLogo = itemView.findViewById(R.id.imgGameLogo);
+        void bind(Game game) {
+            binding.setGame(game);
+            binding.executePendingBindings();
+        }
+
+        ItemGameBinding getBinding(){
+            return this.binding;
         }
     }
 }

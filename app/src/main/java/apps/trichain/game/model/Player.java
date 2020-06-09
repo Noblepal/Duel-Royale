@@ -12,12 +12,14 @@ public class Player implements Serializable {
     private Double playerLat;
     private Double playerLng;
     private Float playerDomination;
+    private boolean isOnline;
     private int playerWins;
 
     public Player() {
     }
 
-    public Player(String id, String playerName, Integer playerLevel, String playerPhoto, Double playerLat, Double playerLng, Float playerDomination, int playerWins) {
+    public Player(String id, String playerName, Integer playerLevel, String playerPhoto,
+                  Double playerLat, Double playerLng, Float playerDomination, boolean isOnline, int playerWins) {
         this.id = id;
         this.playerName = playerName;
         this.playerLevel = playerLevel;
@@ -25,6 +27,7 @@ public class Player implements Serializable {
         this.playerLat = playerLat;
         this.playerLng = playerLng;
         this.playerDomination = playerDomination;
+        this.isOnline = isOnline;
         this.playerWins = playerWins;
     }
 
@@ -90,6 +93,14 @@ public class Player implements Serializable {
 
     public void setPlayerWins(int playerWins) {
         this.playerWins = playerWins;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    public void setOnline(boolean online) {
+        isOnline = online;
     }
 
     public String jsonify() {

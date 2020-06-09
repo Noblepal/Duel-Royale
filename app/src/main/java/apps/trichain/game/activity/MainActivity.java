@@ -78,8 +78,9 @@ import apps.trichain.game.viewModel.PlayerViewModel;
 
 import static apps.trichain.game.util.util.CHALLENGE_ACCEPTED;
 import static apps.trichain.game.util.util.CHALLENGE_REJECTED;
+import static apps.trichain.game.util.util.CHALLENGE_WAITING;
 import static apps.trichain.game.util.util.DB_CHALLENGES;
-import static apps.trichain.game.util.util.extractPackageName;
+import static apps.trichain.game.util.util.DB_PLAYERS;
 import static apps.trichain.game.util.util.hideView;
 import static apps.trichain.game.util.util.showView;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
@@ -112,7 +113,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private String selectedGameName = "";
     private Game chosenGame;
     AddGameDialogFragment addGameDialog;
-    private boolean hasChosenGame;
+    private boolean hasChosenGame, hasAcceptedChallenge = false, hasRivalAcceptedChallenge = false;
     LocationCallback locationCallback;
     private Challenge challengeRequest;
 
@@ -179,7 +180,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         currentPlayer = dataSnapshot.getValue(Player.class);
-                        playerViewModel.setPlayerData(currentPlayer);
+                        //playerViewModel.setPlayerData(currentPlayer);
+                        sharedPrefsManager.savePlayerData(currentPlayer.jsonify());
                     }
 
                     @Override
@@ -188,7 +190,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
 
-        playerViewModel.getPlayerData().observe(this, player -> sharedPrefsManager.savePlayerData(player.jsonify()));
+        //playerViewModel.getPlayerData().observe(this, player -> sharedPrefsManager.savePlayerData(player.jsonify()));
 
         challengeListener = dbReference.child(DB_CHALLENGES).addValueEventListener(new ValueEventListener() {
             @Override
@@ -200,7 +202,22 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                             Log.e(TAG, "onDataChange: Opponent: " + challengeRequest.getOpponentID());
                             Log.e(TAG, "onDataChange: currentPlayer: " + currentPlayer.getId());
                             if (challengeRequest.getChallengeStatus().equals(util.CHALLENGE_WAITING)) {
-                                Log.e(TAG, "onDataChange: Searching for challenger");
+                                dbReference.child(DB_PLAYERS).child(challengeRequest.getPlayerID())
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                chosenGame = challengeRequest.getSelectedGame();
+                                                challengingPlayer = dataSnapshot.getValue(Player.class);
+                                                showAcceptChallengeDialog();
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+                                /*Log.e(TAG, "onDataChange: Searching for challenger");
                                 int nn = 1;
                                 for (Player potentialChallenger : playerList) {
                                     Log.e(TAG, "onDataChange: Potential challenger [" + nn + "]: " + potentialChallenger.getId());
@@ -213,7 +230,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                         break;
                                     }
                                     nn++;
-                                }
+                                }*/
                             } else if (challengeRequest.getChallengeStatus().equals(CHALLENGE_ACCEPTED)) {
                                 Log.e(TAG, "onDataChange: Challenge accepted by opponent");
                             } else {
@@ -234,34 +251,110 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     Challenge pendingChallenge;
-    DataSnapshot challengeSnapShot;
 
     private void startListeningToChallengeEvent(boolean isChallenger) {
-        dbReference.child(DB_CHALLENGES).addValueEventListener(new ValueEventListener() {
+        if (isChallenger) {
+            dbReference.child(DB_CHALLENGES).child(currentPlayer.getId()).addValueEventListener((new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        //Toast.makeText(MainActivity.this, "My challenge exists", Toast.LENGTH_SHORT).show();
+                        pendingChallenge = dataSnapshot.getValue(Challenge.class);
+                        if (pendingChallenge.getChallengeStatus().equals(CHALLENGE_ACCEPTED)) {
+                            // Toast.makeText(MainActivity.this, "Challenge Accepted", Toast.LENGTH_SHORT).show();
+                            b.tvSearching.setText("Accepted! Opening + " + chosenGame.getGameName() + "...");
+                            hasRivalAcceptedChallenge = true;
+                            dbReference.child(DB_CHALLENGES).child(currentPlayer.getId()).removeValue();
+                        } else if (pendingChallenge.getChallengeStatus().equals(CHALLENGE_WAITING)) {
+                            //Toast.makeText(MainActivity.this, "Waiting...", Toast.LENGTH_SHORT).show();
+                            hasRivalAcceptedChallenge = false;
+                            util.hideView(b.rlProgress);
+                            //Toast.makeText(MainActivity.this, rivalPlayer.getPlayerName() + " has REJECTED your challenge.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            //Toast.makeText(MainActivity.this, "Declined...", Toast.LENGTH_SHORT).show();
+                            util.hideView(b.rlProgress);
+                            hasRivalAcceptedChallenge = false;
+                            dbReference.child(DB_CHALLENGES).child(currentPlayer.getId()).removeValue();
+                        }
+                    } else {
+                        Log.e(TAG, "onDataChange: No challenge by me");
+                    }
+                    if (hasRivalAcceptedChallenge) {
+                        Toast.makeText(MainActivity.this, "Challenge accepted! Launching " + chosenGame.getGameName(), Toast.LENGTH_SHORT).show();
+                        launchSelectedApp(util.extractPackageName(chosenGame.getExternal_url()));
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            }));
+        } else {
+            dbReference.child(DB_CHALLENGES).child(challengingPlayer.getId()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        //Toast.makeText(MainActivity.this, "Rival challenge exists", Toast.LENGTH_SHORT).show();
+                        pendingChallenge = dataSnapshot.getValue(Challenge.class);
+                        if (pendingChallenge.getChallengeStatus().equals(CHALLENGE_ACCEPTED)) {
+                            hasAcceptedChallenge = true;
+                            dbReference.child(DB_CHALLENGES).child(challengingPlayer.getId()).removeValue();
+                        } else if (pendingChallenge.getChallengeStatus().equals(CHALLENGE_WAITING)) {
+                            hasAcceptedChallenge = false;
+                        } else {
+                            hasAcceptedChallenge = false;
+                            dbReference.child(DB_CHALLENGES).child(challengingPlayer.getId()).removeValue();
+                        }
+                    } else {
+                        Log.e(TAG, "onDataChange: No challenges for me");
+                    }
+
+                    if (hasAcceptedChallenge) {
+                        Toast.makeText(MainActivity.this, "Challenge accepted! Launching " + chosenGame.getGameName(), Toast.LENGTH_SHORT).show();
+                        launchSelectedApp(util.extractPackageName(chosenGame.getExternal_url()));
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+        /*dbReference.child(DB_CHALLENGES).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (isChallenger) {
                     if (dataSnapshot.hasChild(currentPlayer.getId())) {
+                        Toast.makeText(MainActivity.this, "Challenge exists", Toast.LENGTH_SHORT).show();
                         challengeSnapShot = dataSnapshot.child(currentPlayer.getId());
                         pendingChallenge = challengeSnapShot.getValue(Challenge.class);
                         if (pendingChallenge.getChallengeStatus().equals(CHALLENGE_ACCEPTED)) {
-                            Toast.makeText(MainActivity.this, rivalPlayer.getPlayerName() + " has accepted your challenge. Opening game now...", Toast.LENGTH_SHORT).show();
-                            launchSelectedApp(extractPackageName(chosenGame.getExternal_url()));
+                            b.tvSearching.setText("Accepted! Opening + " + chosenGame.getGameName() + "...");
+                            hasRivalAcceptedChallenge = true;
                         } else {
+                            Toast.makeText(MainActivity.this, "Declined", Toast.LENGTH_SHORT).show();
+                            hasRivalAcceptedChallenge = false;
+                            util.hideView(b.rlProgress);
                             //Toast.makeText(MainActivity.this, rivalPlayer.getPlayerName() + " has REJECTED your challenge.", Toast.LENGTH_SHORT).show();
                         }
+                    } else {
+                        Toast.makeText(MainActivity.this, "Challenge NOT exists", Toast.LENGTH_SHORT).show();
                     }
                     //dismissThisDialog();
                 } else {
                     if (dataSnapshot.hasChild(challengingPlayer.getId())) {
+                        Toast.makeText(MainActivity.this, "Challenge exists", Toast.LENGTH_SHORT).show();
                         challengeSnapShot = dataSnapshot.child(challengingPlayer.getId());
                         pendingChallenge = challengeSnapShot.getValue(Challenge.class);
                         if (pendingChallenge.getChallengeStatus().equals(CHALLENGE_ACCEPTED)) {
-                            Toast.makeText(MainActivity.this, "You have accepted " + challengingPlayer.getPlayerName() +                                    "'s challenge. Opening game now...", Toast.LENGTH_SHORT).show();
+                            hasAcceptedChallenge = true;
                         } else {
-                            //Toast.makeText(MainActivity.this, "You have REJECTED " + challengingPlayer.getPlayerName() + "'s challenge.", Toast.LENGTH_SHORT).show();
+                            hasAcceptedChallenge = false;
                         }
                     } else {
+                        Toast.makeText(MainActivity.this, "Challenge NOT exists", Toast.LENGTH_SHORT).show();
                         Log.e(TAG, "onDataChange: Challenge data not found");
                     }
                 }
@@ -271,7 +364,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        });*/
+
+        util.hideView(b.rlProgress);
+        if (hasRivalAcceptedChallenge || hasAcceptedChallenge) {
+            Toast.makeText(MainActivity.this, "Challenge accepted! Launching " + chosenGame.getGameName(), Toast.LENGTH_SHORT).show();
+            launchSelectedApp(util.extractPackageName(chosenGame.getExternal_url()));
+        }
+
     }
 
     private void dismissThisDialog() {
@@ -303,6 +403,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void showAcceptChallengeDialog() {
+        startListeningToChallengeEvent(false);
         if (!d.isShowing()) {
             TextView tvName, tvLevel, tvMessage, btnAccept, btnDecline;
             CircleImageView imageView;
@@ -331,9 +432,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             CircleImageView playerImg = d.findViewById(R.id.imgRivalProfile);
             util.loadImage(playerImg, challengingPlayer.getPlayerPhoto(), false);
             d.show();
-
-            startListeningToChallengeEvent(false);
-
         }
 
     }
@@ -445,11 +543,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        statusCheck();
-    }
 
     public void statusCheck() {
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -701,18 +794,20 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+                startListeningToChallengeEvent(true);
                 currentPlayerLatLng = new LatLng(currentPlayer.getPlayerLat(), currentPlayer.getPlayerLng());
             }
 
             @Override
             protected Player doInBackground(Void... voids) {
+                rivalPlayer = null;
                 for (Player x : playerList) {
-                    if (!x.getId().equals(currentPlayer.getId())) {
-                        rivalPlayerLatLng = new LatLng(x.getPlayerLat(), x.getPlayerLng());
+                    if (!x.getId().equals(currentPlayer.getId()) && x.isOnline()) {
+                        rivalPlayer = x;
+                        rivalPlayerLatLng = new LatLng(rivalPlayer.getPlayerLat(), rivalPlayer.getPlayerLng());
                         currentRivalDistance = util.calculateDistance(currentPlayerLatLng, rivalPlayerLatLng);
                         Log.w(TAG, "autoChallengeNearestRival: currentRivalDistance: " + currentRivalDistance);
                         if (isFirstPlayerInList) {
-                            rivalPlayer = x;
                             Log.w(TAG, "autoChallengeNearestRival: isFirstPlayer: " + currentPlayerLatLng);
                             Log.w(TAG, "autoChallengeNearestRival: isFirstPlayer -> smallestDistance: " + smallestDistance);
                             isFirstPlayerInList = false;
@@ -724,7 +819,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                             Log.w(TAG, "autoChallengeNearestRival: " + currentRivalDistance + " < " + smallestDistance);
                             smallestDistance = currentRivalDistance;
                             Log.w(TAG, "autoChallengeNearestRival: New smallestDistance -> " + smallestDistance);
-                            rivalPlayer = x;
                             Log.w(TAG, "autoChallengeNearestRival: Current rival:  " + rivalPlayer);
                         }
                     }
@@ -735,21 +829,24 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             protected void onPostExecute(Player player) {
                 super.onPostExecute(player);
-                Challenge challenge = new Challenge();
-                challenge.setChallengeID(UUID.randomUUID().toString());
-                challenge.setPlayerID(currentPlayer.getId());
-                challenge.setOpponentID(player.getId());
-                challenge.setChallengeTime(Calendar.getInstance().getTime().toString());
-                challenge.setSelectedGame(chosenGame);
-                challenge.setChallengeStatus(util.CHALLENGE_WAITING);
-                challenge.setWinnerID("");
-                sharedPrefsManager.saveChallenge(challenge);
-                dbReference.child(DB_CHALLENGES).child(currentPlayer.getId()).setValue(challenge);
-                Toast.makeText(MainActivity.this, "Found: " + player.getPlayerName()
-                        + ". Requesting challenge...", Toast.LENGTH_SHORT).show();
-                b.tvSearching.setText("Requesting challenge...");
-                //util.hideView(b.rlProgress);
-                launchSelectedApp(extractPackageName(chosenGame.getExternal_url()));
+                if (player != null) {
+                    Challenge challenge = new Challenge();
+                    challenge.setChallengeID(UUID.randomUUID().toString());
+                    challenge.setPlayerID(currentPlayer.getId());
+                    challenge.setOpponentID(player.getId());
+                    challenge.setChallengeTime(Calendar.getInstance().getTime().toString());
+                    challenge.setSelectedGame(chosenGame);
+                    challenge.setChallengeStatus(util.CHALLENGE_WAITING);
+                    challenge.setWinnerID("");
+                    sharedPrefsManager.saveChallenge(challenge);
+                    dbReference.child(DB_CHALLENGES).child(currentPlayer.getId()).setValue(challenge);
+                    b.tvSearching.setText("Found " + player.getPlayerName() + ". Requesting challenge...");
+                    b.tvSearching.setText("Awaiting " + player.getPlayerName() + "'s response...");
+                    //util.hideView(b.rlProgress);
+                } else {
+                    util.hideView(b.rlProgress);
+                    Toast.makeText(MainActivity.this, "No online players found!", Toast.LENGTH_SHORT).show();
+                }
             }
         }.execute();
 
@@ -800,8 +897,24 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    protected void onStop() {
+        currentPlayer.setOnline(false);
+        playerViewModel.setPlayerData(currentPlayer);
+        //dbReference.child(util.DB_PLAYERS).child(currentPlayer.getId()).child("online").setValue(false);
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        currentPlayer.setOnline(true);
+        playerViewModel.setPlayerData(currentPlayer);
+        //dbReference.child(util.DB_PLAYERS).child(currentPlayer.getId()).child("online").setValue(true);
+        statusCheck();
+        super.onResume();
+    }
+
+    @Override
     protected void onDestroy() {
-        super.onDestroy();
         try {
             stopLocationUpdates();
             dbReference.removeEventListener(currentPlayerListener);
@@ -809,6 +922,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (Exception e) {
             e.printStackTrace();
         }
+        super.onDestroy();
     }
 
     private void stopLocationUpdates() {

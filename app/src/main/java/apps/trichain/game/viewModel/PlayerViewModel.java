@@ -14,6 +14,8 @@ import java.util.List;
 import apps.trichain.game.model.Game;
 import apps.trichain.game.model.Player;
 
+import static apps.trichain.game.util.util.DB_PLAYERS;
+
 public class PlayerViewModel extends ViewModel {
     /*Current player data*/
     private MutableLiveData<Player> playerMutableLiveData = new MutableLiveData<>();
@@ -21,7 +23,7 @@ public class PlayerViewModel extends ViewModel {
 
     public void setPlayerData(Player player) {
         playerMutableLiveData.setValue(player);
-        FirebaseDatabase.getInstance().getReference().child("players").child(player.getId()).setValue(player);
+        FirebaseDatabase.getInstance().getReference().child(DB_PLAYERS).child(player.getId()).setValue(player);
     }
 
     public LiveData<Player> getPlayerData() {
@@ -55,7 +57,6 @@ public class PlayerViewModel extends ViewModel {
     /*Location live data*/
     private MutableLiveData<Location> locationMutableLiveData = new MutableLiveData<>();
     private LiveData<Location> locationLiveData = Transformations.map(locationMutableLiveData, input -> input);
-
 
 
     public LiveData<Location> getLocationLiveData() {

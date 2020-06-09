@@ -175,6 +175,7 @@ public class SignInActivity extends AppCompatActivity {
                     0.0,
                     0.0,
                     0.0f,
+                    true,
                     0
             );
             saveToFireBase(player);

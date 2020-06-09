@@ -50,6 +50,7 @@ public class SignInActivity extends AppCompatActivity {
     private List<Player> playerList = new ArrayList<>();
     private boolean isPlayerExists = false;
     private Player player;
+    private boolean hasSignedIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +111,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser currentUser) {
         if (currentUser != null) {
-            b.tvSignInMessage.setText("Checking player data...");
+            b.tvSignInMessage.setText("Signing in..");
             //Find player
             userListener = dbReference.child("players").addValueEventListener(new ValueEventListener() {
                 @Override
@@ -123,7 +124,14 @@ public class SignInActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                    validatePlayer(currentUser);
+                    if (!hasSignedIn)
+                        validatePlayer(currentUser);
+                    else
+                        try {
+                            dbReference.removeEventListener(userListener);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                 }
 
                 @Override
@@ -166,7 +174,8 @@ public class SignInActivity extends AppCompatActivity {
                     String.valueOf(currentUser.getPhotoUrl()),
                     0.0,
                     0.0,
-                    0.0f
+                    0.0f,
+                    0
             );
             saveToFireBase(player);
             isPlayerExists = true;
@@ -180,6 +189,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void startMainActivity() {
+        hasSignedIn = true;
         try {
             dbReference.removeEventListener(userListener);
             dbReference = null;
@@ -218,10 +228,23 @@ public class SignInActivity extends AppCompatActivity {
 
                             updateUI(null);
                         }
-
                         // ...
                     }
                 });
     }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            dbReference.removeEventListener(userListener);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

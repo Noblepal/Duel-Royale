@@ -5,14 +5,23 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AlertDialog;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.model.LatLng;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -25,9 +34,21 @@ import apps.trichain.game.R;
 
 public class util {
 
+    public static final String CHALLENGE_WAITING = "awaiting opponent";
+    public static final String CHALLENGE_ACCEPTED = "accepted";
+    public static final String CHALLENGE_COMPLETE = "complete";
+    public static final String CHALLENGE_IN_PROGRESS = "in progress";
+    public static final String CHALLENGE_REJECTED = "rejected";
+
+    public static final String DB_CHALLENGES = "challenges";
+    public static final String DB_PLAYERS = "players";
+    public static final String DB_GAMES = "games";
+
     private static Activity activityRequestingImage = null;
     private static boolean mIsSquarePicture;
     public static final int REQUEST_IMAGE = 103;
+    private static final String TAG = "util";
+
 
     public static void hideView(View... v) {
         for (int i = 0; i < v.length; i++)
@@ -62,10 +83,15 @@ public class util {
     }
 
     public static void loadImage(ImageView v, Object url, boolean isLandscape) {
-        Glide.with(v)
-                .load(url)
-                .placeholder(isLandscape ? R.drawable.ic_placeholder_game : R.drawable.ic_placeholder_game)
-                .into(v);
+        try {
+            Glide.with(v)
+                    .load(url)
+                    .placeholder(isLandscape ? R.drawable.ic_placeholder_game : R.drawable.ic_placeholder_game)
+                    .into(v);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ;
     }
 
     public static void pickImg(Activity activity, boolean isSquarePicture) {
@@ -134,4 +160,77 @@ public class util {
         intent.setData(uri);
         activityRequestingImage.startActivityForResult(intent, 101);
     }
+
+    public static boolean isPackageInstalled(String packageName, PackageManager packageManager) {
+        try {
+            packageManager.getPackageInfo(packageName, 0);
+            Log.e("PKG", "isPackageInstalled: Package is installed");
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("PKG", "isPackageInstalled: Package is NOT installed");
+            return false;
+        }
+    }
+
+    public static String extractPackageName(String playStoreURL) {
+        String packageName = "";
+        String[] splitted = playStoreURL.split("\\?");
+        String lastHalf = splitted[1];
+        if (lastHalf.startsWith("id=")) {
+            packageName = lastHalf.substring(lastHalf.indexOf("=") + 1, lastHalf.lastIndexOf("&"));
+            System.out.println("Package: " + packageName);
+        } else {
+            Log.e(TAG, "extractPackageName: Not a valid URL");
+        }
+        return packageName;
+    }
+
+    public static double calculateDistance(LatLng myLatLng, LatLng rivalLatLng) {
+        double lon1 = myLatLng.longitude;
+        double lat1 = myLatLng.latitude;
+        double lon2 = rivalLatLng.longitude;
+        double lat2 = rivalLatLng.latitude;
+
+        double theta = lon1 - lon2;
+        double dist = Math.sin(deg2rad(lat1))
+                * Math.sin(deg2rad(lat2))
+                + Math.cos(deg2rad(lat1))
+                * Math.cos(deg2rad(lat2))
+                * Math.cos(deg2rad(theta));
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+        dist = dist * 60 * 1.1515;
+        return (dist);
+    }
+
+    private static double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    private static double rad2deg(double rad) {
+        return (rad * 180.0 / Math.PI);
+    }
+
+    public static Bitmap getCroppedBitmap(Bitmap bitmap) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
+                bitmap.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
+        //return _bmp;
+        return output;
+    }
+
 }

@@ -2,11 +2,21 @@ package apps.trichain.game.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import apps.trichain.game.model.Challenge;
+import apps.trichain.game.model.Game;
 import apps.trichain.game.model.Player;
 
 public class SharedPrefsManager {
     private static final String SHARED_PREFS_NAME = "my_game";
+    private static final String TAG = "SharedPrefsManager";
     private static SharedPrefsManager mInstance;
 
     private static SharedPreferences sharedPreferences;
@@ -36,5 +46,52 @@ public class SharedPrefsManager {
 
     public Player getSavedPlayer() {
         return Player.create(sharedPreferences.getString("player", ""));
+    }
+
+    public void storeGame(Game mGame) {
+        boolean isGameAlreadySaved = false;
+        Log.e(TAG, "storeGame: Attempting to save game: " + mGame);
+        List<Game> savedGames = retrieveStoredGames();
+        Log.e(TAG, "storeGame: savedGames: " + savedGames);
+        if (savedGames.size() > 0) {
+            for (Game g : savedGames) {
+                if (g.getExternal_url().equals(mGame.getExternal_url())) {
+                    isGameAlreadySaved = true;
+                    Log.e(TAG, "storeGame: Game already saved. Skipping...");
+                    break;
+                }
+            }
+            if (!isGameAlreadySaved) savedGames.add(mGame);
+        } else {
+            Log.e(TAG, "storeGame: List is empty");
+            Log.e(TAG, "storeGame: Saving first game: " + mGame);
+            savedGames.add(mGame);
+        }
+        Log.e(TAG, "storeGame: savedGames (new): " + savedGames);
+        sharedPreferences.edit().putString("saved_games", String.valueOf(savedGames)).apply();
+    }
+
+    public List<Game> retrieveStoredGames() {
+        List<Game> gamesList = new ArrayList<>();
+        String mStoredGames = sharedPreferences.getString("saved_games", null);
+
+        if (mStoredGames != null && mStoredGames.length() > 0) {
+            try {
+                JSONArray jsonArray = new JSONArray(mStoredGames);
+                for (int y = 0; y < jsonArray.length(); y++) {
+                    Game savedGame = Game.create(jsonArray.getJSONObject(y).toString());
+                    Log.e(TAG, "retrieveStoredGames: Adding game to list: " + savedGame);
+                    gamesList.add(savedGame);
+                }
+            } catch (JSONException joe) {
+                joe.printStackTrace();
+            }
+        }
+
+        return gamesList;
+    }
+
+    public void saveChallenge(Challenge challenge) {
+        sharedPreferences.edit().putString("active_challenge", challenge.toString()).apply();
     }
 }

@@ -71,4 +71,8 @@ public class Game implements Serializable {
     public String toString() {
         return new Gson().toJson(this);
     }
+
+    public static Game create(String serializedGame) {
+        return new Gson().fromJson(serializedGame, Game.class);
+    }
 }

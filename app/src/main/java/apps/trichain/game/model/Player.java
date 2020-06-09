@@ -1,43 +1,23 @@
 package apps.trichain.game.model;
 
 import com.google.gson.Gson;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
 public class Player implements Serializable {
-    @SerializedName("id")
     private String id;
-
-    @SerializedName("player_name")
-    @Expose
     private String playerName;
-
-    @SerializedName("player_level")
-    @Expose
     private Integer playerLevel;
-
-    @SerializedName("player_photo")
-    @Expose
     private String playerPhoto;
-
-    @SerializedName("player_lat")
-    @Expose
     private Double playerLat;
-
-    @SerializedName("player_lng")
-    @Expose
     private Double playerLng;
-
-    @SerializedName("player_domination")
-    @Expose
     private Float playerDomination;
+    private int playerWins;
 
     public Player() {
     }
 
-    public Player(String id, String playerName, Integer playerLevel, String playerPhoto, Double playerLat, Double playerLng, Float playerDomination) {
+    public Player(String id, String playerName, Integer playerLevel, String playerPhoto, Double playerLat, Double playerLng, Float playerDomination, int playerWins) {
         this.id = id;
         this.playerName = playerName;
         this.playerLevel = playerLevel;
@@ -45,6 +25,7 @@ public class Player implements Serializable {
         this.playerLat = playerLat;
         this.playerLng = playerLng;
         this.playerDomination = playerDomination;
+        this.playerWins = playerWins;
     }
 
     public String getId() {
@@ -101,6 +82,14 @@ public class Player implements Serializable {
 
     public void setPlayerDomination(Float playerDomination) {
         this.playerDomination = playerDomination;
+    }
+
+    public int getPlayerWins() {
+        return playerWins;
+    }
+
+    public void setPlayerWins(int playerWins) {
+        this.playerWins = playerWins;
     }
 
     public String jsonify() {

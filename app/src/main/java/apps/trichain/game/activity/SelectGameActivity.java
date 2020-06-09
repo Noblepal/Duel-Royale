@@ -1,4 +1,4 @@
-package apps.trichain.game.fragment;
+package apps.trichain.game.activity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -6,18 +6,15 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,7 +26,7 @@ import java.util.List;
 
 import apps.trichain.game.R;
 import apps.trichain.game.adapter.GamesAdapter;
-import apps.trichain.game.databinding.BottomSheetAddGameBinding;
+import apps.trichain.game.databinding.ActivitySelectGameBinding;
 import apps.trichain.game.model.Game;
 import apps.trichain.game.util.RecyclerItemClickListener;
 import apps.trichain.game.util.SharedPrefsManager;
@@ -38,9 +35,9 @@ import apps.trichain.game.viewModel.PlayerViewModel;
 
 import static apps.trichain.game.util.util.extractPackageName;
 
-public class AddGameDialogFragment extends BottomSheetDialogFragment {
+public class SelectGameActivity extends AppCompatActivity {
 
-    private BottomSheetAddGameBinding b;
+    private ActivitySelectGameBinding b;
     private DatabaseReference dbReference;
     private ValueEventListener gameListener;
     private List<Game> gamesList = new ArrayList<>();
@@ -53,29 +50,21 @@ public class AddGameDialogFragment extends BottomSheetDialogFragment {
     private SharedPrefsManager sharedPrefsManager;
     private PackageManager pManager;
 
-
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(BottomSheetDialogFragment.STYLE_NO_FRAME, R.style.CustomBottomSheetDialogTheme);
-    }
-
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        b = DataBindingUtil.inflate(inflater, R.layout.bottom_sheet_add_game, container, false);
+        b = DataBindingUtil.setContentView(this, R.layout.activity_select_game);
         dbReference = FirebaseDatabase.getInstance().getReference();
-        adapter = new GamesAdapter(gamesList, getContext());
+        adapter = new GamesAdapter(gamesList, this);
         b.tvNumAvailableGames.setText(getResources().getString(R.string.games_available, 0));
-        b.recyclerViewGamesAdd.setLayoutManager(new LinearLayoutManager(getContext()));
+        b.recyclerViewGamesAdd.setLayoutManager(new LinearLayoutManager(this));
         b.recyclerViewGamesAdd.setAdapter(adapter);
-        pManager = getActivity().getPackageManager();
-        sharedPrefsManager = SharedPrefsManager.getInstance(getContext());
+        pManager = this.getPackageManager();
+        sharedPrefsManager = SharedPrefsManager.getInstance(this);
 
         ViewModelProvider.AndroidViewModelFactory factory = new ViewModelProvider
-                .AndroidViewModelFactory(getActivity().getApplication());
-        viewModel = new ViewModelProvider(getActivity(), factory).get(PlayerViewModel.class);
+                .AndroidViewModelFactory(this.getApplication());
+        viewModel = new ViewModelProvider(this, factory).get(PlayerViewModel.class);
 
         /*viewModel.getGamesLiveData().observe(getViewLifecycleOwner(), mGamesList -> {
             gamesList.clear();
@@ -83,14 +72,16 @@ public class AddGameDialogFragment extends BottomSheetDialogFragment {
             gamesList.addAll(mGamesList);
         });*/
 
+        b.btnBackGame.setOnClickListener(v -> onBackPressed());
+
         downloadGamesList();
 
-        b.recyclerViewGamesAdd.addOnItemTouchListener(new RecyclerItemClickListener(getContext(),
+        b.recyclerViewGamesAdd.addOnItemTouchListener(new RecyclerItemClickListener(this,
                 b.recyclerViewGamesAdd, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 selectedGame = gamesList.get(position);
-                Toast.makeText(getContext(), "Clicked " + selectedGame.getGameName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(SelectGameActivity.this, "Clicked " + selectedGame.getGameName(), Toast.LENGTH_SHORT).show();
                 String playStoreURL = selectedGame.getExternal_url();
                 appPackageName = extractPackageName(playStoreURL);
 
@@ -100,7 +91,7 @@ public class AddGameDialogFragment extends BottomSheetDialogFragment {
                 } else {
                     addGameToLocalList();
                     Log.e(TAG, "onItemClick: Game is NOT installed");
-                    new AlertDialog.Builder(getActivity())
+                    new AlertDialog.Builder(SelectGameActivity.this)
                             .setTitle(selectedGame.getGameName() + " is not installed")
                             .setMessage("Please install " + selectedGame.getGameName() + " from Google Play Store")
                             .setPositiveButton("Install", (dialog, which) -> launchGooglePlayStore(playStoreURL))
@@ -114,7 +105,6 @@ public class AddGameDialogFragment extends BottomSheetDialogFragment {
 
             }
         }));
-        return b.getRoot();
     }
 
     private void launchGooglePlayStore(String playStoreURL) {
@@ -133,14 +123,14 @@ public class AddGameDialogFragment extends BottomSheetDialogFragment {
             if (util.isPackageInstalled(appPackageName, pManager)) {
                 addGameToLocalList();
             } else {
-                Toast.makeText(getContext(), "Not installed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Not installed", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     private void addGameToLocalList() {
         sharedPrefsManager.storeGame(selectedGame);
-        Toast.makeText(getContext(), "Game added to list", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Game added to list", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -160,10 +150,16 @@ public class AddGameDialogFragment extends BottomSheetDialogFragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(), "An error has occurred", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SelectGameActivity.this, "An error has occurred", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "onCancelled: " + databaseError.getMessage());
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
     }
 
     @Override

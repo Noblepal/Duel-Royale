@@ -1,5 +1,7 @@
 package apps.trichain.game.viewModel;
 
+import android.location.Location;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -22,7 +24,7 @@ public class PlayerViewModel extends ViewModel {
         FirebaseDatabase.getInstance().getReference().child("players").child(player.getId()).setValue(player);
     }
 
-    public LiveData<Player> getPlayer() {
+    public LiveData<Player> getPlayerData() {
         return playerLiveData;
     }
 
@@ -48,5 +50,19 @@ public class PlayerViewModel extends ViewModel {
 
     public LiveData<List<Game>> getGamesLiveData() {
         return gamesLiveData;
+    }
+
+    /*Location live data*/
+    private MutableLiveData<Location> locationMutableLiveData = new MutableLiveData<>();
+    private LiveData<Location> locationLiveData = Transformations.map(locationMutableLiveData, input -> input);
+
+
+
+    public LiveData<Location> getLocationLiveData() {
+        return locationLiveData;
+    }
+
+    public void setLocationLiveData(Location locationLiveData) {
+        locationMutableLiveData.setValue(locationLiveData);
     }
 }

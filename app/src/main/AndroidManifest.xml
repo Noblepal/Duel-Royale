@@ -18,7 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
+        <activity android:name=".activity.SelectGameActivity"></activity>
+        <activity android:name=".activity.ProfileActivity" />
         <activity android:name=".activity.AddGameActivity" />
 
         <meta-data
@@ -49,7 +50,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
     </application>
 
 </manifest>

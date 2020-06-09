@@ -8,7 +8,6 @@
         android:id="@+id/mBottomSheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bottom_sheet_bg"
         android:orientation="vertical"
         android:padding="8dp">
 
@@ -16,14 +15,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:paddingStart="16dp"
             android:paddingEnd="16dp">
+
+            <ImageButton
+                android:id="@+id/btnBackGame"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:background="@color/transparent"
+                android:elevation="12dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_back" />
 
             <TextView
                 android:id="@+id/tvChooseAGame"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
+                android:layout_alignBaseline="@id/btnBackGame"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@id/btnBackGame"
                 android:fontFamily="@font/poppins_bold"
                 android:text="@string/choose_a_game_below"
                 android:textColor="@color/colorPrimary"
@@ -35,6 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/tvChooseAGame"
                 android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:fontFamily="@font/poppins_regular"
                 android:gravity="center"
                 android:text="@string/games_available"

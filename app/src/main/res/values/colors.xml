@@ -5,6 +5,7 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorOrange">#FF8A65</color>
     <color name="colorGreyLight">#EBEBEB</color>
     <color name="colorGrey">#58595B</color>
     <color name="transparent">#00000000</color>
@@ -12,4 +13,5 @@
     <color name="dominationColor">#992196F3</color>
     <color name="gradientStart">#B2000000</color>
     <color name="gradientEnd">#65000000</color>
+    <color name="translucentBlack">#B3000000</color>
 </resources>

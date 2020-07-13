@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/backgroundDark"
-        tools:context=".activity.SignInActivity">
+        tools:context="com.trichain.territory.activity.SignInActivity">
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/btnSignin"

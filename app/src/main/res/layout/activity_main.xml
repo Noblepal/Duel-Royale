@@ -54,7 +54,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
-        <apps.trichain.game.util.CircleImageView
+        <com.trichain.territory.util.CircleImageView
             android:id="@+id/imgCurrentPlayer"
             android:layout_width="64dp"
             android:layout_height="64dp"
@@ -68,13 +68,14 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSelectGame"
             android:layout_width="0dp"
-            android:layout_height="64dp"
+            android:layout_height="72dp"
             android:layout_margin="8dp"
             android:background="@drawable/bg_btn_select_game"
             android:fontFamily="@font/poppins_bold"
             android:text="Select Game"
             android:textAllCaps="false"
-            android:textSize="32sp"
+            android:gravity="center"
+            android:textSize="28sp"
             app:layout_constraintBottom_toBottomOf="@id/imgCurrentPlayer"
             app:layout_constraintEnd_toStartOf="@id/btnAddGame"
             app:layout_constraintStart_toEndOf="@id/imgCurrentPlayer"
@@ -136,7 +137,7 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".activity.MainActivity" />
+            tools:context="com.trichain.territory.activity.MainActivity" />
 
         <RelativeLayout
             android:layout_width="wrap_content"

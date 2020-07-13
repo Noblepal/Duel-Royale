@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/transparent">
 
-    <apps.trichain.game.util.CircleImageView
+    <com.trichain.territory.util.CircleImageView
         android:id="@+id/imgRivalProfile"
         android:layout_width="72dp"
         android:layout_height="72dp"

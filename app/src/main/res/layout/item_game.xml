@@ -6,7 +6,7 @@
 
         <variable
             name="game"
-            type="apps.trichain.game.model.Game" />
+            type="com.trichain.territory.model.Game" />
 
         <variable
             name="imageUrl"

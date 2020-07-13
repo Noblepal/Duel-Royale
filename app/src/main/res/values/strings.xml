@@ -9,4 +9,7 @@
     <string name="games_available">%1$d available</string>
     <string name="choose_a_game_below">Choose a game below</string>
     <string name="searching">Searching for nearest rival...</string>
+    <string name="challenge_p">Challenge Player</string>
+    <string name="reject">Reject</string>
+    <string name="let_s_play">Let\'s play</string>
 </resources>

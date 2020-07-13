@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="apps.trichain.game">
+    package="com.trichain.territory">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -18,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activity.SelectGameActivity"></activity>
+        <activity android:name=".activity.SelectGameActivity"/>
         <activity android:name=".activity.ProfileActivity" />
         <activity android:name=".activity.AddGameActivity" />
 

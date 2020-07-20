@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "336315280526-n1e87gbgbj110lnt72508tnl8cbihitq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.trichain.territory",
+            "certificate_hash": "ee5453b1d4dbaa7511189ca695ec05b38eb6539b"
+          }
+        },
+        {
+          "client_id": "336315280526-70170r471igcca59fi8ccu35vrqb12sg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.trichain.territory",
+            "certificate_hash": "6573159c9c48eff76b76a6d195a87c3ffc4247ec"
+          }
+        },
+        {
           "client_id": "336315280526-6lj5s0jhd2s3f67l1a1qr65k51nlganv.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -30,6 +46,49 @@
       "api_key": [
         {
           "current_key": "AIzaSyDGh4HonSNxwevzdRXugpf3bNVxMbeVoL0"
+        },
+        {
+          "current_key": "AIzaSyDGnKRniTYyTLYjIj8ruK9Sj-2SYOUUWQM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "336315280526-fp7ngsjdrv9qdruliphs60urojfaii2r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:336315280526:android:54622fa700db040d35eddf",
+        "android_client_info": {
+          "package_name": "com.trichain.territory.admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "336315280526-4gnrci42t3o37l2jumdnqqugpmf2qma7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.trichain.territory.admin",
+            "certificate_hash": "0ad780f8fdeba1bfe719c63e5a0a027f55cc337b"
+          }
+        },
+        {
+          "client_id": "336315280526-fp7ngsjdrv9qdruliphs60urojfaii2r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGh4HonSNxwevzdRXugpf3bNVxMbeVoL0"
+        },
+        {
+          "current_key": "AIzaSyDGnKRniTYyTLYjIj8ruK9Sj-2SYOUUWQM"
         }
       ],
       "services": {

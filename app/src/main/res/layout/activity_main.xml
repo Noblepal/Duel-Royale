@@ -75,7 +75,7 @@
             android:text="Select Game"
             android:textAllCaps="false"
             android:gravity="center"
-            android:textSize="28sp"
+            android:textSize="21dp"
             app:layout_constraintBottom_toBottomOf="@id/imgCurrentPlayer"
             app:layout_constraintEnd_toStartOf="@id/btnAddGame"
             app:layout_constraintStart_toEndOf="@id/imgCurrentPlayer"
